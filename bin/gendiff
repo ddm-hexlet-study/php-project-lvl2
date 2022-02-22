@@ -18,6 +18,17 @@ Options:
 DOC;
 
 require_once __DIR__ . '/../vendor/autoload.php';
+use function Differ\Differ\genDiff;
+
 $args = Docopt::handle($doc, array('version'=>'GenDiff 1.0'));
-foreach ($args as $k=>$v)
-    echo $k.': '.json_encode($v).PHP_EOL;
+foreach ($args as $k=>$v) {
+    //echo $k.': '.json_encode($v).PHP_EOL;
+    //var_dump($args);
+}
+if (isset($args['<firstFile>']) && isset($args['<secondFile>'])) {
+    $filePath1 = $args['<firstFile>'];
+    $filePath2 = $args['<secondFile>'];
+    $difference = genDiff($filePath1, $filePath2);
+    print_r($difference);
+}
+    

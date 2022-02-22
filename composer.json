@@ -1,5 +1,21 @@
 {
     "name": "hexlet/code",
+    "license": "AGPL-3.0-or-later",
+    "description": "hexlet 2 project",
+    "authors": [
+        {
+            "name": "ddm14159",
+            "email": "ddm14159@gmail.com"
+        }
+    ],
+    "autoload": {
+        "files": [
+            "src/differ.php"
+        ]
+    },
+    "bin": [
+        "bin/gendiff"
+      ],
     "require": {
         "docopt/docopt": "^1.0"
     }
