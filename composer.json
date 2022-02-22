@@ -10,7 +10,7 @@
     ],
     "autoload": {
         "files": [
-            "src/differ.php"
+            "src/Differ/Differ.php"
         ]
     },
     "bin": [
