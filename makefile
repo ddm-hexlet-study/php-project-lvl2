@@ -1,4 +1,4 @@
-istall: #установить зависимости
+install: #установить зависимости
 	composer install
 lint: #запуск phpcs
 	composer exec --verbose phpcs -- --standard=PSR12 src bin
