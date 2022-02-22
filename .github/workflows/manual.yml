@@ -13,3 +13,5 @@ jobs:
                 tools: phpcs, phpunit
         - name: Linter Test
           run: make lint
+        - name: PhpUnit Test
+          run: make lint
