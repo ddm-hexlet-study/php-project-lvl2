@@ -47,6 +47,5 @@ function genDiff(string $path1, string $path2)
         }
     }
     $accumStr = "{\n{$accumStr}}\n";
-    var_dump($accumStr);
     return $accumStr;
 }
