@@ -49,4 +49,3 @@ function genDiff(string $path1, string $path2)
     $accumStr = "{\n{$accumStr}}\n";
     return $accumStr;
 }
-
