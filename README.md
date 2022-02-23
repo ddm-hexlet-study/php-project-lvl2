@@ -3,5 +3,7 @@
 [![main Workflow](https://github.com/ddm14159/php-project-lvl2/actions/workflows/manual.yml/badge.svg?branch=main)](https://github.com/ddm14159/php-project-lvl2/actions/workflows/manual.yml)
 <a href="https://codeclimate.com/github/ddm14159/php-project-lvl2/test_coverage"><img src="https://api.codeclimate.com/v1/badges/7e9a4882cca36f4af413/test_coverage" /></a><a href="https://codeclimate.com/github/ddm14159/php-project-lvl2/maintainability"><img src="https://api.codeclimate.com/v1/badges/7e9a4882cca36f4af413/maintainability" /></a>
 
-First json analyzer<br />
+Json analyzer<br />
 https://asciinema.org/a/AXTShWMqx2tDEVuzC93J2nzPD<br />
+Yaml analyzer<br />
+https://asciinema.org/a/0iIQd6qPFS3vbvzeXQKFAXh4x<br />
