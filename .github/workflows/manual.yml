@@ -16,8 +16,6 @@ jobs:
           run: make install
         - name: Linter Test
           run: make lint
-        - name: PhpUnit Test
-          run: make test
         - name: Run test & publish code coverage
           uses: paambaati/codeclimate-action@v2.6.0
           env:
