@@ -16,11 +16,5 @@ jobs:
           run: make install
         - name: Linter Test
           run: make lint
-        - name: Run test & publish code coverage
-          uses: paambaati/codeclimate-action@v2.6.0
-          env:
-            CC_TEST_REPORTER_ID: ${{ secrets.CODECLIMATE_PROJECT2 }}
-          with:
-            coverageCommand: make test-coverage
-            coverageLocations: ${{github.workplace}}/build/logs/clover.xml:clover
-            debug: true
+        - name: PhpUnit Test
+          run: make test
