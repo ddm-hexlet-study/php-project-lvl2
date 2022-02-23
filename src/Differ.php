@@ -2,14 +2,8 @@
 
 namespace Differ\Differ;
 
-function readJsonFile(string $path): array
-{
-    $resultArr = [];
-    $correctPath = str_starts_with($path, '/') ? $path : "{__DIR__}/../{$path}";
-    $dataJson = file_get_contents($correctPath);
-    $resultArr = json_decode($dataJson, true);
-    return $resultArr;
-}
+use function Differ\Parsers\parseFilePath;
+
 function fixBooleanValue(mixed $value): string
 {
     $stringValue = '';
@@ -39,8 +33,8 @@ function outputFormat(array $data): string
 }
 function genDiff(string $path1, string $path2)
 {
-    $array1 = readJsonFile($path1);
-    $array2 = readJsonFile($path2);
+    $array1 = parseFilePath($path1);
+    $array2 = parseFilePath($path2);
     $accumArr = [];
     foreach ($array1 as $key => $val) {
         $stringValue = fixBooleanValue($val);

@@ -14,8 +14,16 @@ class DifferTest extends TestCase
     {
           $this->expected = file_get_contents('tests/fixtures/differJson');
     }
-    public function testDiff(): void
+    public function setUpYaml(): void
     {
-        $this->assertEquals($this->expected, genDiff('fixtures/file1.json', 'fixtures/file2.json'));
+          $this->expected = file_get_contents('tests/fixtures/differYaml');
+    }
+    public function testDiffJson(): void
+    {
+        $this->assertEquals($this->expected, genDiff('fixtures/json/file1.json', 'fixtures/json/file2.json'));
+    }
+    public function testDiffYaml(): void
+    {
+        $this->assertEquals($this->expected, genDiff('fixtures/json/file1.json', 'fixtures/json/file2.json'));
     }
 }
