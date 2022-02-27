@@ -5,7 +5,7 @@ namespace Differ\Differ;
 use stdClass;
 
 use function Differ\Parsers\parseFilePath;
-use function Differ\Formatters\Stylish\outputStylish;
+use function Differ\Formatters\Formatters\formatDiff;
 
 function fixValueType(mixed $value): string
 {
@@ -64,7 +64,7 @@ function genDiff(string $path1, string $path2, string $format = 'stylish')
 {
     $arr1 = parseFilePath($path1);
     $arr2 = parseFilePath($path2);
-    $accumArr = accumDifference($arr1, $arr2);
-    $resultStr = outputStylish($accumArr);
-    return $resultStr;
+    $difference = accumDifference($arr1, $arr2);
+    $result = formatDiff($difference, $format);
+    return $result;
 }
