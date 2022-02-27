@@ -33,7 +33,6 @@ function outputStylish(mixed $data, int $level = 0): string
         } else {
             $data = json_decode($item, true);
             ['deleted' => $deleted, 'added' => $added] = $data;
-        
             if (is_array($deleted)) {
                 $deleted = arrToStr($deleted, $nextLevel);
             }
