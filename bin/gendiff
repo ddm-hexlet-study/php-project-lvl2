@@ -34,7 +34,8 @@ foreach ($args as $k=>$v) {
 if (isset($args['<firstFile>']) && isset($args['<secondFile>'])) {
     $filePath1 = $args['<firstFile>'];
     $filePath2 = $args['<secondFile>'];
-    $difference = genDiff($filePath1, $filePath2);
+    $formatter = 'stylish';
+    $difference = genDiff($filePath1, $filePath2, $formatter);
     print_r($difference);
 }
     

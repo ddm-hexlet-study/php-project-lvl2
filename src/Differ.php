@@ -2,55 +2,69 @@
 
 namespace Differ\Differ;
 
-use function Differ\Parsers\parseFilePath;
+use stdClass;
 
-function fixBooleanValue(mixed $value): string
+use function Differ\Parsers\parseFilePath;
+use function Differ\Formatters\Stylish\outputStylish;
+
+function fixValueType(mixed $value): string
 {
     $stringValue = '';
-    if (is_bool($value)) {
+    if (!isset($value)) {
+        $stringValue = "null";
+    } elseif (is_bool($value)) {
         $stringValue = $value === true ? 'true' : 'false';
     } else {
         $stringValue = $value;
     }
     return $stringValue;
 }
-function outputFormat(array $data): string
+
+function objToArr(object $obj)
 {
-    $accumStr = '';
-    foreach ($data as $key => [$deleted, $added]) {
-        if ($deleted === $added) {
-            $accumStr .= "    {$key}: {$deleted}\n";
-        } elseif ($deleted === null) {
-            $accumStr .= "  + {$key}: {$added}\n";
-        } elseif ($added === null) {
-            $accumStr .= "  - {$key}: {$deleted}\n";
+    $tmp = (array) $obj;
+    $res = [];
+    $res = array_map(function ($item) {
+        if (is_object($item)) {
+            return objToArr($item);
         } else {
-            $accumStr .= "  - {$key}: {$deleted}\n  + {$key}: {$added}\n";
+            return $item;
         }
-    }
-    $accumStr = "{\n{$accumStr}}\n";
-    return $accumStr;
+    }, $tmp);
+    return $res;
 }
-function genDiff(string $path1, string $path2)
+
+function accumDifference(object $obj1, object $obj2, string $formatter = 'stylish')
 {
-    $array1 = parseFilePath($path1);
-    $array2 = parseFilePath($path2);
-    $accumArr = [];
-    foreach ($array1 as $key => $val) {
-        $stringValue = fixBooleanValue($val);
-        if (array_key_exists($key, $array2)) {
-            $accumArr[$key] = [$stringValue, $array2[$key]];
+    $accum = [];
+    foreach ($obj1 as $key => $val) {
+        if (property_exists($obj2, $key)) {
+            if (is_object($obj1->$key) && is_object($obj2->$key)) {
+                $accum[$key] = accumDifference($obj1->$key, $obj2->$key);
+            } else {
+                $value1 = is_object($obj1->$key) ? objToArr($obj1->$key) : fixValueType($obj1->$key);
+                $value2 = is_object($obj2->$key) ? objToArr($obj2->$key) : fixValueType($obj2->$key);
+                $accum[$key] = json_encode(['deleted' => $value1, 'added' => $value2]);
+            }
         } else {
-            $accumArr[$key] = [$stringValue, null];
+            $value1 = is_object($obj1->$key) ? objToArr($obj1->$key) : fixValueType($obj1->$key);
+            $accum[$key] = json_encode(['deleted' => $value1, 'added' => null]);
         }
     }
-    foreach ($array2 as $key => $val) {
-        $stringValue = fixBooleanValue($val);
-        if (!array_key_exists($key, $array1)) {
-            $accumArr[$key] = [null, $stringValue];
+    foreach ($obj2 as $key => $val) {
+        if (!property_exists($obj1, $key)) {
+            $value2 = is_object($obj2->$key) ? objToArr($obj2->$key) : fixValueType($obj2->$key);
+            $accum[$key] = json_encode(['deleted' => null, 'added' => $value2]);
         }
     }
-    ksort($accumArr);
-    $resultStr = outputFormat($accumArr);
+    return $accum;
+}
+
+function genDiff(string $path1, string $path2, string $format = 'stylish')
+{
+    $arr1 = parseFilePath($path1);
+    $arr2 = parseFilePath($path2);
+    $accumArr = accumDifference($arr1, $arr2);
+    $resultStr = outputStylish($accumArr);
     return $resultStr;
 }
