@@ -10,3 +10,5 @@
 [![asciicast](https://asciinema.org/a/0iIQd6qPFS3vbvzeXQKFAXh4x.svg)](https://asciinema.org/a/0iIQd6qPFS3vbvzeXQKFAXh4x)<br />
 - Nested Json and Yaml analyzer<br />
 [![asciicast](https://asciinema.org/a/kBkZNemuB3Q9tQsUJAuK62qTm.svg)](https://asciinema.org/a/kBkZNemuB3Q9tQsUJAuK62qTm)<br />
+- Plain and Stylish output<br />
+[![asciicast](https://asciinema.org/a/Jh8eQI3tgHfKhzd6a0doqJ9wV.svg)](https://asciinema.org/a/Jh8eQI3tgHfKhzd6a0doqJ9wV)<br />
