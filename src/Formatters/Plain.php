@@ -23,7 +23,7 @@ function correctValue(mixed $value)
     if (is_array($value)) {
         $result = "[complex value]";
     } else {
-        $result = match($value) {
+        $result = match ($value) {
             'true', 'false', 'null' => $value, default => "'{$value}'"
         };
     }
