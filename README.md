@@ -6,10 +6,7 @@
 ## ASCIINEMA
 - Json analyzer<br />
 [![asciicast](https://asciinema.org/a/AXTShWMqx2tDEVuzC93J2nzPD.svg)](https://asciinema.org/a/AXTShWMqx2tDEVuzC93J2nzPD)<br />
-https://asciinema.org/a/AXTShWMqx2tDEVuzC93J2nzPD<br />
 - Yaml analyzer<br />
 [![asciicast](https://asciinema.org/a/0iIQd6qPFS3vbvzeXQKFAXh4x.svg)](https://asciinema.org/a/0iIQd6qPFS3vbvzeXQKFAXh4x)<br />
-https://asciinema.org/a/0iIQd6qPFS3vbvzeXQKFAXh4x<br />
 - Nested Json and Yaml analyzer<br />
 [![asciicast](https://asciinema.org/a/kBkZNemuB3Q9tQsUJAuK62qTm.svg)](https://asciinema.org/a/kBkZNemuB3Q9tQsUJAuK62qTm)<br />
-https://asciinema.org/a/kBkZNemuB3Q9tQsUJAuK62qTm<br />
