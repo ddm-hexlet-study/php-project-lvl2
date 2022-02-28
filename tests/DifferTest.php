@@ -16,19 +16,23 @@ class DifferTest extends TestCase
     {
         $this->filePath1 = 'fixtures/json/complex/file1.json';
         $this->filePath2 = 'fixtures/json/complex/file2.json';
-        $this->expected = file_get_contents('tests/fixtures/differPlainJson');
+        $this->expected = file_get_contents('tests/fixtures/differPlain');
         $this->assertEquals($this->expected, genDiff($this->filePath1, $this->filePath2, 'plain'));
-        $this->expected = file_get_contents('tests/fixtures/differComplexJson');
+        $this->expected = file_get_contents('tests/fixtures/differComplex');
         $this->assertEquals($this->expected, genDiff($this->filePath1, $this->filePath2));
+        $this->expected = file_get_contents('tests/fixtures/differJson');
+        $this->assertEquals($this->expected, genDiff($this->filePath1, $this->filePath2, 'json'));
     }
 
     public function testDiffYaml(): void
     {
         $this->filePath1 = 'fixtures/yaml/complex/file1.yaml';
         $this->filePath2 = 'fixtures/yaml/complex/file2.yml';
-        $this->expected = file_get_contents('tests/fixtures/differPlainYaml');
+        $this->expected = file_get_contents('tests/fixtures/differPlain');
         $this->assertEquals($this->expected, genDiff($this->filePath1, $this->filePath2, 'plain'));
-        $this->expected = file_get_contents('tests/fixtures/differComplexYaml');
+        $this->expected = file_get_contents('tests/fixtures/differComplex');
         $this->assertEquals($this->expected, genDiff($this->filePath1, $this->filePath2));
+        $this->expected = file_get_contents('tests/fixtures/differJson');
+        $this->assertEquals($this->expected, genDiff($this->filePath1, $this->filePath2, 'json'));
     }
 }

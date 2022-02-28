@@ -66,5 +66,6 @@ function genDiff(string $path1, string $path2, string $format = 'stylish')
     $arr2 = parseFilePath($path2);
     $difference = accumDifference($arr1, $arr2);
     $result = formatDiff($difference, $format);
+    //print_r($result);
     return $result;
 }
