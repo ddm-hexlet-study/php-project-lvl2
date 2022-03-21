@@ -22,7 +22,7 @@ function getName($node)
     return $node['name'];
 }
 
-function getType($node)
+function getTypeNode($node)
 {
     return $node['type'];
 }

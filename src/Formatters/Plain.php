@@ -3,7 +3,7 @@
 namespace Differ\Formatters\Plain;
 
 use function Differ\Tree\getName;
-use function Differ\Tree\getType;
+use function Differ\Tree\getTypeNode;
 use function Differ\Tree\getChildrenNode;
 use function Differ\Tree\getChildrenNested;
 use function Differ\Tree\getStatusLeaf;
@@ -13,24 +13,27 @@ use function Functional\flatten;
 function stringify(mixed $value): string
 {
     if (is_array($value)) {
-        $result = "[complex value]";
-        return $result;
+        $stringValue = "[complex value]";
+        return $stringValue;
     }
     if (!isset($value)) {
-        $stringValue = "null";
+        $stringValue = 'null';
+        return $stringValue;
     } elseif (is_bool($value)) {
         $stringValue = $value === true ? 'true' : 'false';
+        return $stringValue;
     } else {
         $stringValue = $value;
     }
-    $result = match ($stringValue) {
-        'true', 'false', 'null' => $stringValue,
-        default => "'{$stringValue}'"
+    $type = gettype($stringValue);
+    $result = match ($type) {
+        "string" => "'{$stringValue}'",
+        default => $stringValue
     };
     return $result;
 }
 
-function performNested(mixed $nested, string $property)
+function performNested(array $nested, string $property): string
 {
     ['deleted' => $deleted, 'added' => $added] = getChildrenNested($nested);
     $valueOld = stringify($deleted);
@@ -38,7 +41,7 @@ function performNested(mixed $nested, string $property)
     return "Property '{$property}' was updated. From {$valueOld} to {$valueNew}";
 }
 
-function performLeaf(mixed $leaf, string $property)
+function performLeaf(array $leaf, string $property): string
 {
     $status = getStatusLeaf($leaf);
     $value = getValueLeaf($leaf);
@@ -51,11 +54,11 @@ function performLeaf(mixed $leaf, string $property)
     return $result;
 }
 
-function performTree(mixed $data, string $property = '')
+function performTree(array $data, string $property = ''): array
 {
     $accum = array_map(function ($item) use ($property) {
         $name = getName($item);
-        $type = getType($item);
+        $type = getTypeNode($item);
         $prop = $property === '' ? $name : "{$property}.{$name}";
         if ($type === 'node') {
             $children = getChildrenNode($item);
@@ -71,7 +74,7 @@ function performTree(mixed $data, string $property = '')
     return $result;
 }
 
-function outputPlain(mixed $difference): string
+function outputPlain(array $difference): string
 {
     $tree = performTree($difference);
     return implode("\n", $tree);

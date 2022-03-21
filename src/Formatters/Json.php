@@ -3,7 +3,7 @@
 namespace Differ\Formatters\Json;
 
 use function Differ\Tree\getName;
-use function Differ\Tree\getType;
+use function Differ\Tree\getTypeNode;
 use function Differ\Tree\getChildrenNode;
 use function Differ\Tree\getChildrenNested;
 use function Differ\Tree\getStatusLeaf;
@@ -47,7 +47,7 @@ function performTree(array $data): array
 {
     $accum = [];
     $accum = array_map(function ($item) {
-        $type = getType($item);
+        $type = getTypeNode($item);
         if ($type === 'node') {
             $name = getName($item);
             $children = getChildrenNode($item);
