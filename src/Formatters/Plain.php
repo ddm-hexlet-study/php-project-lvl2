@@ -11,30 +11,20 @@ use function Differ\Tree\getValueLeaf;
 use function Functional\flatten;
 
 /**
- * Turns boolean/string/int value into a string according to the plain output.
+ * Turns boolean/string/int/array value into a string according to the plain output.
  *
  * @param Mixed $value Data to stringify
  * @return String
  */
+
 function stringify(mixed $value): string
 {
-    if (is_array($value)) {
-        $stringValue = "[complex value]";
-        return $stringValue;
-    }
-    if (!isset($value)) {
-        $stringValue = 'null';
-        return $stringValue;
-    } elseif (is_bool($value)) {
-        $stringValue = $value === true ? 'true' : 'false';
-        return $stringValue;
-    } else {
-        $stringValue = $value;
-    }
-    $type = gettype($stringValue);
-    $result = match ($type) {
-        "string" => "'{$stringValue}'",
-        default => $stringValue
+    $result = match(true) {
+        is_array($value) => '[complex value]',
+        !isset($value) => 'null',
+        is_bool($value) => $value === true ? 'true' : 'false',
+        is_string($value) => "'{$value}'",
+        default => $value
     };
     return $result;
 }
