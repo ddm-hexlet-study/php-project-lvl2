@@ -12,3 +12,5 @@
 [![asciicast](https://asciinema.org/a/kBkZNemuB3Q9tQsUJAuK62qTm.svg)](https://asciinema.org/a/kBkZNemuB3Q9tQsUJAuK62qTm)<br />
 - Plain and Stylish output<br />
 [![asciicast](https://asciinema.org/a/Jh8eQI3tgHfKhzd6a0doqJ9wV.svg)](https://asciinema.org/a/Jh8eQI3tgHfKhzd6a0doqJ9wV)<br />
+- Json output
+[![asciicast](https://asciinema.org/a/57v9YxwiD0TkWg9LAfpYJ4DUb.svg)](https://asciinema.org/a/57v9YxwiD0TkWg9LAfpYJ4DUb)<br />
