@@ -13,6 +13,12 @@ const DELETED_PREFIX = '- ';
 const ADDED_PREFIX = '+ ';
 const UNCHANGED_PREFIX = '';
 
+/**
+ * Returns prefix due to the status of a leaf.
+ *
+ * @param Array $leaf Variable that contains a leaf
+ * @return String
+ */
 function getPrefix(array $leaf): string
 {
     $status = getStatusLeaf($leaf);
@@ -24,6 +30,12 @@ function getPrefix(array $leaf): string
     return $prefix;
 }
 
+/**
+ * Performs a leaf of a tree as an array for function json_encode.
+ *
+ * @param Array $leaf Data to stringify
+ * @return Array
+ */
 function performLeaf(array $leaf): array
 {
     $prefix = getPrefix($leaf);
@@ -33,6 +45,12 @@ function performLeaf(array $leaf): array
     return $result;
 }
 
+/**
+ * Performs a nested node of a tree as an array for function json_encode.
+ *
+ * @param Array $nested Data to stringify
+ * @return Array
+ */
 function performNested(array $nested): array
 {
     $name = getName($nested);
@@ -43,6 +61,12 @@ function performNested(array $nested): array
     return $result;
 }
 
+/**
+ * Builds a tree of difference as an array for function json_encode.
+ *
+ * @param Array $data Data to stringify
+ * @return Array
+ */
 function performTree(array $data): array
 {
     $accum = array_map(function ($item) {
@@ -65,6 +89,12 @@ function performTree(array $data): array
     return $accum;
 }
 
+/**
+ * Returns final result.
+ *
+ * @param Array $difference Difference between two sets of data
+ * @return String
+ */
 function outputJson(array $data): string
 {
     $tree = performTree($data);

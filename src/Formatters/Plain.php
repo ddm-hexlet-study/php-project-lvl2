@@ -10,6 +10,12 @@ use function Differ\Tree\getStatusLeaf;
 use function Differ\Tree\getValueLeaf;
 use function Functional\flatten;
 
+/**
+ * Turns boolean/string/int value into a string according to the plain output.
+ *
+ * @param Mixed $value Data to stringify
+ * @return String
+ */
 function stringify(mixed $value): string
 {
     if (is_array($value)) {
@@ -33,6 +39,13 @@ function stringify(mixed $value): string
     return $result;
 }
 
+/**
+ * Performs a nested node of a tree as a string.
+ *
+ * @param Array $nested Data to stringify
+ * @param String $property Full name of an item
+ * @return String
+ */
 function performNested(array $nested, string $property): string
 {
     ['deleted' => $deleted, 'added' => $added] = getChildrenNested($nested);
@@ -41,6 +54,13 @@ function performNested(array $nested, string $property): string
     return "Property '{$property}' was updated. From {$valueOld} to {$valueNew}";
 }
 
+/**
+ * Performs a leaf of a tree as a string.
+ *
+ * @param Array $leaf Data to stringify
+ * @param String $property Full name of an item
+ * @return String
+ */
 function performLeaf(array $leaf, string $property): string
 {
     $status = getStatusLeaf($leaf);
@@ -54,6 +74,13 @@ function performLeaf(array $leaf, string $property): string
     return $result;
 }
 
+/**
+ * Builds a tree of difference according to the stylish output.
+ *
+ * @param Array $data Data to stringify
+ * @param String $property Full name of an item
+ * @return String
+ */
 function performTree(array $data, string $property = ''): array
 {
     $accum = array_map(function ($item) use ($property) {
@@ -74,6 +101,12 @@ function performTree(array $data, string $property = ''): array
     return $result;
 }
 
+/**
+ * Returns final result.
+ *
+ * @param Array $difference Difference between two sets of data
+ * @return String
+ */
 function outputPlain(array $difference): string
 {
     $tree = performTree($difference);

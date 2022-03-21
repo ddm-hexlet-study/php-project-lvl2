@@ -9,7 +9,14 @@ use function Differ\Tree\createNested;
 use function Differ\Tree\createLeaf;
 use function Functional\sort;
 
-function accumDifference(array $firstData, array $secondData, string $formatter = 'stylish'): array
+/**
+ * Calculates difference between two arrays.
+ *
+ * @param Array $firstData First array
+ * @param Array $secondData Second array
+ * @return Array
+ */
+function accumDifference(array $firstData, array $secondData): array
 {
     $keys = array_unique(array_merge(array_keys($firstData), array_keys($secondData)));
     $sortedKeys = sort($keys, fn ($left, $right) => strcmp($left, $right));
@@ -34,6 +41,14 @@ function accumDifference(array $firstData, array $secondData, string $formatter 
     return $tree;
 }
 
+/**
+ * Outputs difference between two json or yaml files.
+ *
+ * @param String $path1 Path to the first file
+ * @param String $path2 Path to the second file
+ * @param String $format Output format
+ * @return String
+ */
 function genDiff(string $path1, string $path2, string $format = 'stylish'): string
 {
     $arr1 = parseFilePath($path1);

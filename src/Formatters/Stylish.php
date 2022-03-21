@@ -14,6 +14,12 @@ const DELETED_PREFIX = '  - ';
 const ADDED_PREFIX = '  + ';
 const UNCHANGED_PREFIX = '    ';
 
+/**
+ * Returns prefix due to the status of a leaf.
+ *
+ * @param Array $leaf Variable that contains a leaf
+ * @return String
+ */
 function getPrefix(mixed $leaf): string
 {
     $status = getStatusLeaf($leaf);
@@ -25,11 +31,23 @@ function getPrefix(mixed $leaf): string
     return $prefix;
 }
 
+/**
+ * Returns indent due to the depth of iteration.
+ *
+ * @param Int $level Depth of iteration
+ * @return String
+ */
 function getIndent(int $level): string
 {
     return str_repeat(' ', $level * INDENT_LENGTH);
 }
 
+/**
+ * Turns boolean value into string.
+ *
+ * @param Mixed $value Value
+ * @return String
+ */
 function stringifyBool(mixed $value): string
 {
     if (!isset($value)) {
@@ -42,17 +60,25 @@ function stringifyBool(mixed $value): string
     return $stringValue;
 }
 
-function stringifyNonScalar(mixed $node, int $level): string
+
+/**
+ * Turns array value into string.
+ *
+ * @param Array $data Data to stringify
+ * @param Int $level Depth of iteration
+ * @return String
+ */
+function stringifyNonScalar(array $data, int $level): string
 {
-    $keys = array_keys($node);
+    $keys = array_keys($data);
     $outerIndent = getIndent($level);
-    $accum = array_map(function ($item) use ($node, $level) {
+    $accum = array_map(function ($item) use ($data, $level) {
         $innerIndent = getIndent($level + 1);
-        if (is_array($node[$item])) {
-            $value = stringifyNonScalar($node[$item], $level + 1);
+        if (is_array($data[$item])) {
+            $value = stringifyNonScalar($data[$item], $level + 1);
             return "{$innerIndent}{$item}: {$value}";
         } else {
-            $value = stringifyBool($node[$item]);
+            $value = stringifyBool($data[$item]);
             return "{$innerIndent}{$item}: {$value}";
         }
     }, $keys);
@@ -60,7 +86,14 @@ function stringifyNonScalar(mixed $node, int $level): string
     return $result;
 }
 
-function performLeaf(mixed $leaf, int $level): string
+/**
+ * Performs a leaf of a tree as a string.
+ *
+ * @param Array $leaf Data to stringify
+ * @param Int $level Depth of iteration
+ * @return String
+ */
+function performLeaf(array $leaf, int $level): string
 {
     $name = getName($leaf);
     $prefix = getPrefix($leaf);
@@ -71,7 +104,14 @@ function performLeaf(mixed $leaf, int $level): string
     return $performance;
 }
 
-function performNested(mixed $nested, int $level): string
+/**
+ * Performs a nested node of a tree as a string.
+ *
+ * @param Array $nested Data to stringify
+ * @param Int $level Depth of iteration
+ * @return String
+ */
+function performNested(array $nested, int $level): string
 {
     $indent = getIndent($level);
     $name = getName($nested);
@@ -84,7 +124,14 @@ function performNested(mixed $nested, int $level): string
     return $result;
 }
 
-function performTree(mixed $difference, int $level = 0): string
+/**
+ * Builds a tree of difference according to the stylish output.
+ *
+ * @param Array $data Data to stringify
+ * @param Int $level Depth of iteration
+ * @return String
+ */
+function performTree(array $data, int $level = 0): string
 {
     $indent = getIndent($level);
     $accum = array_map(function ($item) use ($level, $indent) {
@@ -99,12 +146,18 @@ function performTree(mixed $difference, int $level = 0): string
         } else {
             return performNested($item, $level);
         }
-    }, $difference);
+    }, $data);
     $result = implode("\n", ["{", ...$accum, "{$indent}}"]);
     return $result;
 }
 
-function outputStylish(mixed $difference): string
+/**
+ * Returns final result.
+ *
+ * @param Array $difference Difference between two sets of data
+ * @return String
+ */
+function outputStylish(array $difference): string
 {
     $tree = performTree($difference);
     return $tree;
