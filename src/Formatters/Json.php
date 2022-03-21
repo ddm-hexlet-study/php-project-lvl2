@@ -2,37 +2,74 @@
 
 namespace Differ\Formatters\Json;
 
-function diffToArr(mixed $data)
+use function Differ\Tree\getName;
+use function Differ\Tree\getType;
+use function Differ\Tree\getChildrenNode;
+use function Differ\Tree\getChildrenNested;
+use function Differ\Tree\getStatusLeaf;
+use function Differ\Tree\getValueLeaf;
+
+const DELETED_PREFIX = '- ';
+const ADDED_PREFIX = '+ ';
+const UNCHANGED_PREFIX = '';
+
+function getPrefix(array $leaf): string
+{
+    $status = getStatusLeaf($leaf);
+    $prefix = match ($status) {
+        'added' => ADDED_PREFIX,
+        'deleted' => DELETED_PREFIX,
+        default => UNCHANGED_PREFIX,
+    };
+    return $prefix;
+}
+
+function performLeaf(array $leaf): array
+{
+    $prefix = getPrefix($leaf);
+    $name = $prefix . getName($leaf);
+    $value = getValueLeaf($leaf);
+    $result = array($name => $value);
+    return $result;
+}
+
+function performNested(array $nested): array
+{
+    $name = getName($nested);
+    ['deleted' => $deletedValue, 'added' => $addedValue] = getChildrenNested($nested);
+    $deletedName = DELETED_PREFIX . $name;
+    $addedName = ADDED_PREFIX . $name;
+    $result = array($deletedName => $deletedValue, $addedName => $addedValue);
+    return $result;
+}
+
+function performTree(array $data): array
 {
     $accum = [];
-    ksort($data);
-    foreach ($data as $key => $item) {
-        if (is_array($item)) {
-            $accum[$key] = diffToArr($item);
+    $accum = array_map(function ($item) {
+        $type = getType($item);
+        if ($type === 'node') {
+            $name = getName($item);
+            $children = getChildrenNode($item);
+            $value = performTree($children);
+            $result = array($name => $value);
+            $mergedResult = array_map(function ($item) {
+                return call_user_func_array('array_merge', $item);
+            }, $result);
+            return $mergedResult;
+        } elseif ($type === 'leaf') {
+            return performLeaf($item);
         } else {
-            $data = json_decode($item, true);
-            ['deleted' => $deleted, 'added' => $added] = $data;
-            if ($deleted === $added) {
-                $accum[$key] = $deleted;
-            } elseif ($deleted === null) {
-                $accum["+ {$key}"] = $added;
-            } elseif ($added === null) {
-                $accum["- {$key}"] = $deleted;
-            } else {
-                $accum["- {$key}"] = $deleted;
-                $accum["+ {$key}"] = $added;
-            }
+            return performNested($item);
         }
-    }
-    $res = json_encode($accum);
-    //print_r($res);
+    }, $data);
     return $accum;
 }
 
-function outputJson(array $data)
+function outputJson(array $data): string
 {
-    $arr = diffToArr($data);
-    $res = json_encode($arr);
-    //print_r($res);
-    return $res;
+    $tree = performTree($data);
+    $flattenedTree = array_merge(...$tree);
+    $result = json_encode($flattenedTree);
+    return $result;
 }

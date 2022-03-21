@@ -4,12 +4,14 @@ namespace Differ\Parsers;
 
 use Symfony\Component\Yaml\Yaml;
 
+use function Functional\map;
+
 function readYamlFile(string $path)
 {
     $resultArr = [];
     $correctPath = str_starts_with($path, '/') ? $path : "{__DIR__}/../{$path}";
     $dataYaml = file_get_contents($correctPath);
-    $resultArr = Yaml::parse($dataYaml, Yaml::PARSE_OBJECT_FOR_MAP);
+    $resultArr = Yaml::parse($dataYaml);
     return $resultArr;
 }
 function readJsonFile(string $path)
@@ -17,7 +19,7 @@ function readJsonFile(string $path)
     $resultArr = [];
     $correctPath = str_starts_with($path, '/') ? $path : "{__DIR__}/../{$path}";
     $dataJson = file_get_contents($correctPath);
-    $resultArr = json_decode($dataJson);
+    $resultArr = json_decode($dataJson, true);
     return $resultArr;
 }
 

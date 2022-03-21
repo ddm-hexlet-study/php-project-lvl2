@@ -2,70 +2,43 @@
 
 namespace Differ\Differ;
 
-use stdClass;
-
 use function Differ\Parsers\parseFilePath;
 use function Differ\Formatters\Formatters\formatDiff;
+use function Differ\Tree\createNode;
+use function Differ\Tree\createNested;
+use function Differ\Tree\createLeaf;
+use function Functional\sort;
 
-function fixValueType(mixed $value): string
+function accumDifference(array $firstData, array $secondData, string $formatter = 'stylish'): array
 {
-    $stringValue = '';
-    if (!isset($value)) {
-        $stringValue = "null";
-    } elseif (is_bool($value)) {
-        $stringValue = $value === true ? 'true' : 'false';
-    } else {
-        $stringValue = $value;
-    }
-    return $stringValue;
-}
-
-function objToArr(object $obj)
-{
-    $tmp = (array) $obj;
-    $res = [];
-    $res = array_map(function ($item) {
-        if (is_object($item)) {
-            return objToArr($item);
+    $keys = array_unique(array_merge(array_keys($firstData), array_keys($secondData)));
+    $sortedKeys = sort($keys, fn ($left, $right) => strcmp($left, $right));
+    $tree = array_map(function ($key) use ($firstData, $secondData) {
+        $belongsFirst = array_key_exists($key, $firstData);
+        $belongsSecond = array_key_exists($key, $secondData);
+        if (!$belongsFirst) {
+            $data = [$key, 'added', $secondData[$key]];
+            $node = createLeaf(...$data);
+        } elseif (!$belongsSecond) {
+            $data = [$key, 'deleted', $firstData[$key]];
+            $node = createLeaf(...$data);
+        } elseif (is_array($firstData[$key]) && is_array($secondData[$key])) {
+            $node = createNode($key, accumDifference($firstData[$key], $secondData[$key]));
+        } elseif ($firstData[$key] !== $secondData[$key]) {
+            $node = createNested($key, $firstData[$key], $secondData[$key]);
         } else {
-            return $item;
+            $node = createLeaf($key, 'unchanged', $firstData[$key]);
         }
-    }, $tmp);
-    return $res;
+        return $node;
+    }, $sortedKeys);
+    return $tree;
 }
 
-function accumDifference(object $obj1, object $obj2, string $formatter = 'stylish')
-{
-    $accum = [];
-    foreach ($obj1 as $key => $val) {
-        if (property_exists($obj2, $key)) {
-            if (is_object($obj1->$key) && is_object($obj2->$key)) {
-                $accum[$key] = accumDifference($obj1->$key, $obj2->$key);
-            } else {
-                $value1 = is_object($obj1->$key) ? objToArr($obj1->$key) : fixValueType($obj1->$key);
-                $value2 = is_object($obj2->$key) ? objToArr($obj2->$key) : fixValueType($obj2->$key);
-                $accum[$key] = json_encode(['deleted' => $value1, 'added' => $value2]);
-            }
-        } else {
-            $value1 = is_object($obj1->$key) ? objToArr($obj1->$key) : fixValueType($obj1->$key);
-            $accum[$key] = json_encode(['deleted' => $value1, 'added' => null]);
-        }
-    }
-    foreach ($obj2 as $key => $val) {
-        if (!property_exists($obj1, $key)) {
-            $value2 = is_object($obj2->$key) ? objToArr($obj2->$key) : fixValueType($obj2->$key);
-            $accum[$key] = json_encode(['deleted' => null, 'added' => $value2]);
-        }
-    }
-    return $accum;
-}
-
-function genDiff(string $path1, string $path2, string $format = 'stylish')
+function genDiff(string $path1, string $path2, string $format = 'stylish'): string
 {
     $arr1 = parseFilePath($path1);
     $arr2 = parseFilePath($path2);
     $difference = accumDifference($arr1, $arr2);
     $result = formatDiff($difference, $format);
-    //print_r($result);
     return $result;
 }

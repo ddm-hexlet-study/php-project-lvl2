@@ -2,59 +2,111 @@
 
 namespace Differ\Formatters\Stylish;
 
-function arrToStr(array $arr, int $level = 1)
+use function Differ\Tree\getName;
+use function Differ\Tree\getType;
+use function Differ\Tree\getChildrenNode;
+use function Differ\Tree\getChildrenNested;
+use function Differ\Tree\getStatusLeaf;
+use function Differ\Tree\getValueLeaf;
+
+const INDENT_LENGTH = 4;
+const DELETED_PREFIX = '  - ';
+const ADDED_PREFIX = '  + ';
+const UNCHANGED_PREFIX = '    ';
+
+function getPrefix(mixed $leaf): string
 {
-    $res = "{";
-    $endSpaces = str_repeat('    ', $level);
-    $nextLevel = $level + 1;
-    $innerSpaces = str_repeat('    ', $nextLevel);
-    foreach ($arr as $key => $val) {
-        if (!is_array($val)) {
-            $res .= "\n{$innerSpaces}{$key}: {$val}";
-        } else {
-            $res .= "\n{$innerSpaces}{$key}: " . arrToStr($val, $nextLevel);
-        }
-    }
-    $res .= "\n{$endSpaces}}";
-    return $res;
+    $status = getStatusLeaf($leaf);
+    $prefix = match ($status) {
+        'added' => ADDED_PREFIX,
+        'deleted' => DELETED_PREFIX,
+        default => UNCHANGED_PREFIX,
+    };
+    return $prefix;
 }
 
-function outputStylish(mixed $data, int $level = 0): string
+function getIndent(int $level): string
 {
-    $accumStr = "{";
-    $endSpaces = str_repeat('    ', $level);
-    $nextLevel = $level + 1;
-    $innerSpaces = str_repeat('    ', $nextLevel);
-    ksort($data);
-    foreach ($data as $key => $item) {
-        if (is_array($item)) {
-            $innerBlock = outputStylish($item, $nextLevel);
-            $accumStr .= "\n{$innerSpaces}{$key}: {$innerBlock}";
-        } else {
-            $data = json_decode($item, true);
-            ['deleted' => $deleted, 'added' => $added] = $data;
-            if (is_array($deleted)) {
-                $deleted = arrToStr($deleted, $nextLevel);
-            }
-            if (is_array($added)) {
-                $added = arrToStr($added, $nextLevel);
-            }
-            if ($deleted === $added) {
-                $prefix = $innerSpaces;
-                $accumStr .= "\n{$prefix}{$key}: {$deleted}";
-            } elseif ($deleted === null) {
-                $prefix = substr_replace($innerSpaces, '+', -2, 1);
-                $accumStr .= "\n{$prefix}{$key}: {$added}";
-            } elseif ($added === null) {
-                $prefix = substr_replace($innerSpaces, '-', -2, 1);
-                $accumStr .= "\n{$prefix}{$key}: {$deleted}";
-            } else {
-                $prefix1 = substr_replace($innerSpaces, '-', -2, 1);
-                $prefix2 = substr_replace($innerSpaces, '+', -2, 1);
-                $accumStr .= "\n{$prefix1}{$key}: {$deleted}\n{$prefix2}{$key}: {$added}";
-            }
-        }
+    return str_repeat(' ', $level * INDENT_LENGTH);
+}
+
+function stringifyBool(mixed $value): string
+{
+    $stringValue = '';
+    if (!isset($value)) {
+        $stringValue = "null";
+    } elseif (is_bool($value)) {
+        $stringValue = $value === true ? 'true' : 'false';
+    } else {
+        $stringValue = $value;
     }
-    $accumStr .= "\n{$endSpaces}}";
-    return $accumStr;
+    return $stringValue;
+}
+
+function stringifyNonScalar(mixed $node, $level): string
+{
+    $keys = array_keys($node);
+    $outerIndent = getIndent($level);
+    $accum = array_map(function ($item) use ($node, $level) {
+        $innerIndent = getIndent($level + 1);
+        if (is_array($node[$item])) {
+            $value = stringifyNonScalar($node[$item], $level + 1);
+            return "{$innerIndent}{$item}: {$value}";
+        } else {
+            $value = stringifyBool($node[$item]);
+            return "{$innerIndent}{$item}: {$value}";
+        }
+    }, $keys);
+    $result = implode("\n", ["{", ...$accum, "{$outerIndent}}"]);
+    return $result;
+}
+
+function performLeaf(mixed $leaf, $level): string
+{
+    $name = getName($leaf);
+    $prefix = getPrefix($leaf);
+    $value = getValueLeaf($leaf);
+    $res = is_array($value) ? stringifyNonScalar($value, $level + 1) : stringifyBool($value);
+    $indent = getIndent($level);
+    $performance = "{$indent}{$prefix}{$name}: {$res}";
+    return $performance;
+}
+
+function performNested(mixed $nested, $level): string
+{
+    $indent = getIndent($level);
+    $name = getName($nested);
+    ['deleted' => $deleted, 'added' => $added] = getChildrenNested($nested);
+    $stringifiedDel = is_array($deleted) ? stringifyNonScalar($deleted, $level + 1) : stringifyBool($deleted);
+    $performanceDel = $indent . DELETED_PREFIX . $name . ": " . $stringifiedDel;
+    $stringifiedAdd = is_array($added) ? stringifyNonScalar($added, $level + 1) : stringifyBool($added);
+    $performanceAdd = $indent . ADDED_PREFIX . $name . ": " . $stringifiedAdd;
+    $result = "{$performanceDel}\n{$performanceAdd}";
+    return $result;
+}
+
+function performTree(mixed $difference, int $level = 0): string
+{
+    $indent = getIndent($level);
+    $accum = array_map(function ($item) use ($level, $indent) {
+        $type = getType($item);
+        if ($type === 'node') {
+            $name = getName($item);
+            $children = getChildrenNode($item);
+            $value = performTree($children, $level + 1);
+            return $indent . UNCHANGED_PREFIX . $name . ": " . $value;
+        } elseif ($type === 'leaf') {
+            return performLeaf($item, $level);
+        } else {
+            return performNested($item, $level);
+        }
+    }, $difference);
+    $result = implode("\n", ["{", ...$accum, "{$indent}}"]);
+    return $result;
+}
+
+function outputStylish(mixed $difference): string
+{
+    $tree = performTree($difference);
+    return $tree;
 }

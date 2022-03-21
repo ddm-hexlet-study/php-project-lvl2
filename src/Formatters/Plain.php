@@ -2,56 +2,77 @@
 
 namespace Differ\Formatters\Plain;
 
-function arrToStr(array $arr, int $level = 1)
-{
-    $res = "{";
-    $endSpaces = str_repeat('    ', $level);
-    $nextLevel = $level + 1;
-    $innerSpaces = str_repeat('    ', $nextLevel);
-    foreach ($arr as $key => $val) {
-        if (!is_array($val)) {
-            $res .= "\n{$innerSpaces}{$key}: {$val}";
-        } else {
-            $res .= "\n{$innerSpaces}{$key}: " . arrToStr($val, $nextLevel);
-        }
-    }
-    $res .= "\n{$endSpaces}}";
-    return $res;
-}
-function correctValue(mixed $value)
+use function Differ\Tree\getName;
+use function Differ\Tree\getType;
+use function Differ\Tree\getChildrenNode;
+use function Differ\Tree\getChildrenNested;
+use function Differ\Tree\getStatusLeaf;
+use function Differ\Tree\getValueLeaf;
+use function Functional\flatten;
+
+function stringify(mixed $value): string
 {
     if (is_array($value)) {
         $result = "[complex value]";
-    } else {
-        $result = match ($value) {
-            'true', 'false', 'null' => $value, default => "'{$value}'"
-        };
+        return $result;
     }
+    if (!isset($value)) {
+        $stringValue = "null";
+    } elseif (is_bool($value)) {
+        $stringValue = $value === true ? 'true' : 'false';
+    } else {
+        $stringValue = $value;
+    }
+    $result = match ($stringValue) {
+        'true', 'false', 'null' => $stringValue,
+        default => "'{$stringValue}'"
+    };
     return $result;
 }
-function outputPlain(mixed $data, string $property = ''): string
+
+function performNested(mixed $nested, string $property)
 {
-    $accumStr = "";
-    ksort($data);
-    foreach ($data as $key => $item) {
-        $prop = $property === '' ? $key : "{$property}.{$key}";
-        if (is_array($item)) {
-            $innerBlock = outputPlain($item, $prop);
-            $accumStr .= "{$innerBlock}";
+    ['deleted' => $deleted, 'added' => $added] = getChildrenNested($nested);
+    $valueOld = stringify($deleted);
+    $valueNew = stringify($added)   ;
+    return "Property '{$property}' was updated. From {$valueOld} to {$valueNew}";
+}
+
+function performLeaf(mixed $leaf, string $property)
+{
+    $status = getStatusLeaf($leaf);
+    $value = getValueLeaf($leaf);
+    $correctValue = stringify($value);
+    $result = match ($status) {
+        'added' => "Property '{$property}' was added with value: {$correctValue}",
+        'deleted' => "Property '{$property}' was removed",
+        default => "",
+    };
+    return $result;
+}
+
+function performTree(mixed $data, string $property = '')
+{
+    $accum = array_map(function ($item) use ($property) {
+        $name = getName($item);
+        $type = getType($item);
+        $prop = $property === '' ? $name : "{$property}.{$name}";
+        if ($type === 'node') {
+            $children = getChildrenNode($item);
+            return performTree($children, $prop);
+        } elseif ($type === 'nested') {
+            return performNested($item, $prop);
         } else {
-            $data = json_decode($item, true);
-            ['deleted' => $deleted, 'added' => $added] = $data;
-            if ($added === null) {
-                $accumStr .= "Property '{$prop}' was removed\n";
-            } elseif ($deleted === null) {
-                $value = correctValue($added);
-                $accumStr .= "Property '{$prop}' was added with value: {$value}\n";
-            } elseif ($added !== $deleted) {
-                $valueOld = correctValue($deleted);
-                $valueNew = correctValue($added);
-                $accumStr .= "Property '{$prop}' was updated. From {$valueOld} to {$valueNew}\n";
-            }
+            return performLeaf($item, $prop);
         }
-    }
-    return $accumStr;
+    }, $data);
+    $flatResult = flatten($accum);
+    $result = array_filter($flatResult, fn($item) => !empty($item));
+    return $result;
+}
+
+function outputPlain(mixed $difference): string
+{
+    $tree = performTree($difference);
+    return implode("\n", $tree);
 }
