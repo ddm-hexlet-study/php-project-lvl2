@@ -79,7 +79,7 @@ function performLeaf(array $leaf, string $property): string
  *
  * @param Array $data Data to stringify
  * @param String $property Full name of an item
- * @return String
+ * @return Array
  */
 function performTree(array $data, string $property = ''): array
 {

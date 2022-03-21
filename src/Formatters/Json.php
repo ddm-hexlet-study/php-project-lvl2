@@ -95,9 +95,9 @@ function performTree(array $data): array
  * @param Array $difference Difference between two sets of data
  * @return String
  */
-function outputJson(array $data): string
+function outputJson(array $difference): string
 {
-    $tree = performTree($data);
+    $tree = performTree($difference);
     $flattenedTree = array_merge(...$tree);
     $result = json_encode($flattenedTree);
     return $result;
