@@ -32,7 +32,6 @@ function getIndent(int $level): string
 
 function stringifyBool(mixed $value): string
 {
-    $stringValue = '';
     if (!isset($value)) {
         $stringValue = "null";
     } elseif (is_bool($value)) {
@@ -43,7 +42,7 @@ function stringifyBool(mixed $value): string
     return $stringValue;
 }
 
-function stringifyNonScalar(mixed $node, $level): string
+function stringifyNonScalar(mixed $node, int $level): string
 {
     $keys = array_keys($node);
     $outerIndent = getIndent($level);
@@ -61,7 +60,7 @@ function stringifyNonScalar(mixed $node, $level): string
     return $result;
 }
 
-function performLeaf(mixed $leaf, $level): string
+function performLeaf(mixed $leaf, int $level): string
 {
     $name = getName($leaf);
     $prefix = getPrefix($leaf);
@@ -72,7 +71,7 @@ function performLeaf(mixed $leaf, $level): string
     return $performance;
 }
 
-function performNested(mixed $nested, $level): string
+function performNested(mixed $nested, int $level): string
 {
     $indent = getIndent($level);
     $name = getName($nested);

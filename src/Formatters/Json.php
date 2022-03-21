@@ -45,7 +45,6 @@ function performNested(array $nested): array
 
 function performTree(array $data): array
 {
-    $accum = [];
     $accum = array_map(function ($item) {
         $type = getTypeNode($item);
         if ($type === 'node') {

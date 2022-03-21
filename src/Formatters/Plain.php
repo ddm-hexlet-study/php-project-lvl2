@@ -70,7 +70,7 @@ function performTree(array $data, string $property = ''): array
         }
     }, $data);
     $flatResult = flatten($accum);
-    $result = array_filter($flatResult, fn($item) => !empty($item));
+    $result = array_diff($flatResult, array(''));
     return $result;
 }
 

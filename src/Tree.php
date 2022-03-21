@@ -17,32 +17,32 @@ function createLeaf(string $name, string $status, mixed $value)
     return ['name' => $name, 'type' => 'leaf', 'status' => $status, 'value' => $value];
 }
 
-function getName($node)
+function getName(array $node)
 {
     return $node['name'];
 }
 
-function getTypeNode($node)
+function getTypeNode(array $node)
 {
     return $node['type'];
 }
 
-function getValueLeaf($node)
+function getValueLeaf(array $node)
 {
     return $node['value'];
 }
 
-function getStatusLeaf($node)
+function getStatusLeaf(array $node)
 {
     return $node['status'];
 }
 
-function getChildrenNode($node)
+function getChildrenNode(array $node)
 {
     return $node['children'];
 }
 
-function getChildrenNested($node)
+function getChildrenNested(array $node)
 {
     return $node['children'];
 }
