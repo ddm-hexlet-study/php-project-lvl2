@@ -3,7 +3,7 @@
 [![main Workflow](https://github.com/ddm14159/php-project-lvl2/actions/workflows/manual.yml/badge.svg?branch=main)](https://github.com/ddm14159/php-project-lvl2/actions/workflows/manual.yml)
 <a href="https://codeclimate.com/github/ddm14159/php-project-lvl2/test_coverage"><img src="https://api.codeclimate.com/v1/badges/7e9a4882cca36f4af413/test_coverage" /></a><a href="https://codeclimate.com/github/ddm14159/php-project-lvl2/maintainability"><img src="https://api.codeclimate.com/v1/badges/7e9a4882cca36f4af413/maintainability" /></a>
 # JSON and YAML diff calculator
-Generates difference between two sets of data in JSON or YAML formatas. Supported formats - plain, stylish, json.
+Generates difference between two sets of data in JSON or YAML formatas. Supported output formats - plain, stylish, json.
 
 ## Usage
     gendiff -h
