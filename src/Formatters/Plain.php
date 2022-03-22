@@ -19,7 +19,7 @@ use function Functional\flatten;
 
 function stringify(mixed $value): string
 {
-    $result = match(true) {
+    $result = match (true) {
         is_array($value) => '[complex value]',
         !isset($value) => 'null',
         is_bool($value) => $value === true ? 'true' : 'false',
