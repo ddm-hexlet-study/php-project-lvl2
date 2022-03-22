@@ -2,8 +2,26 @@
 [![Actions Status](https://github.com/ddm14159/php-project-lvl2/workflows/hexlet-check/badge.svg)](https://github.com/ddm14159/php-project-lvl2/actions)
 [![main Workflow](https://github.com/ddm14159/php-project-lvl2/actions/workflows/manual.yml/badge.svg?branch=main)](https://github.com/ddm14159/php-project-lvl2/actions/workflows/manual.yml)
 <a href="https://codeclimate.com/github/ddm14159/php-project-lvl2/test_coverage"><img src="https://api.codeclimate.com/v1/badges/7e9a4882cca36f4af413/test_coverage" /></a><a href="https://codeclimate.com/github/ddm14159/php-project-lvl2/maintainability"><img src="https://api.codeclimate.com/v1/badges/7e9a4882cca36f4af413/maintainability" /></a>
+# JSON and YAML diff calculator
+Generates difference between two sets of data in JSON or YAML formatas. Supported formats - plain, stylish, json.
 
-## ASCIINEMA
+## Usage
+    gendiff -h
+    
+    Generate diff
+    
+    Usage:
+    gendiff (-h|--help)
+    gendiff (-v|--version)
+    gendiff [--format <fmt>] <firstFile> <secondFile>
+    
+    Options:
+    -h --help                     Show this screen
+    -v --version                  Show version
+    --format <fmt>                Report format [default: stylish]
+    
+    
+### ASCIINEMA
 - Json analyzer<br />
 [![asciicast](https://asciinema.org/a/AXTShWMqx2tDEVuzC93J2nzPD.svg)](https://asciinema.org/a/AXTShWMqx2tDEVuzC93J2nzPD)<br />
 - Yaml analyzer<br />
