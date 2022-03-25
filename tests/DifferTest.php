@@ -8,7 +8,6 @@ use function Differ\Differ\genDiff;
 
 class DifferTest extends TestCase
 {
-
      /**
      * Returns full path of the file
      *
