@@ -19,20 +19,19 @@ DOC;
 
 $autoloadPath1 = __DIR__ . '/../../../autoload.php';
 $autoloadPath2 = __DIR__ . '/../vendor/autoload.php';
+
 if (file_exists($autoloadPath1)) {
     require_once $autoloadPath1;
 } else {
     require_once $autoloadPath2;
 }
+
 use function Differ\Differ\genDiff;
 
 $args = Docopt::handle($doc, array('version'=>'GenDiff 1.0'));
-
-if (isset($args['<firstFile>']) && isset($args['<secondFile>'])) {
-    $filePath1 = $args['<firstFile>'];
-    $filePath2 = $args['<secondFile>'];
-    $formatter = isset($args['--format']) ? $args['--format'] : 'stylish';
-    $difference = genDiff($filePath1, $filePath2, $formatter);
-    print_r($difference);
-}
+$filePath1 = $args['<firstFile>'];
+$filePath2 = $args['<secondFile>'];
+$formatter = $args['--format'];
+$difference = genDiff($filePath1, $filePath2, $formatter);
+print_r($difference);
     

@@ -20,7 +20,7 @@ const UNCHANGED_PREFIX = '    ';
  * @param Array $leaf Variable that contains a leaf
  * @return String
  */
-function getPrefix(mixed $leaf): string
+function getPrefix(array $leaf): string
 {
     $status = getStatusLeaf($leaf);
     $prefix = match ($status) {

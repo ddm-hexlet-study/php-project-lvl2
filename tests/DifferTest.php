@@ -8,31 +8,79 @@ use function Differ\Differ\genDiff;
 
 class DifferTest extends TestCase
 {
-    private $expected;
-    private $filePath1;
-    private $filePath2;
 
-    public function testDiffJson(): void
+     /**
+     * Returns full path of the file
+     *
+     * @param string $filename Name of the file
+     * @return string
+     */
+    public function getPath(string $filename): string
     {
-        $this->filePath1 = 'fixtures/json/complex/file1.json';
-        $this->filePath2 = 'fixtures/json/complex/file2.json';
-        $this->expected = file_get_contents('tests/fixtures/differPlain');
-        $this->assertEquals($this->expected, genDiff($this->filePath1, $this->filePath2, 'plain'));
-        $this->expected = file_get_contents('tests/fixtures/differComplex');
-        $this->assertEquals($this->expected, genDiff($this->filePath1, $this->filePath2));
-        $this->expected = file_get_contents('tests/fixtures/differJson');
-        $this->assertEquals($this->expected, genDiff($this->filePath1, $this->filePath2, 'json'));
+        return __DIR__ . "/fixtures/" . $filename;
     }
 
-    public function testDiffYaml(): void
+    /**
+     * Array of data for tests
+     *
+     * @return array
+     */
+    public function dataProvider(): array
     {
-        $this->filePath1 = 'fixtures/yaml/complex/file1.yaml';
-        $this->filePath2 = 'fixtures/yaml/complex/file2.yml';
-        $this->expected = file_get_contents('tests/fixtures/differPlain');
-        $this->assertEquals($this->expected, genDiff($this->filePath1, $this->filePath2, 'plain'));
-        $this->expected = file_get_contents('tests/fixtures/differComplex');
-        $this->assertEquals($this->expected, genDiff($this->filePath1, $this->filePath2));
-        $this->expected = file_get_contents('tests/fixtures/differJson');
-        $this->assertEquals($this->expected, genDiff($this->filePath1, $this->filePath2, 'json'));
+        return [
+            [
+                'differPlain',
+                'file1.json',
+                'file2.json',
+                'plain'
+            ],
+            [
+                'differStylish',
+                'file1.json',
+                'file2.json',
+                'stylish'
+            ],
+            [
+                'differJson',
+                'file1.json',
+                'file2.json',
+                'json'
+            ],
+            [
+                'differPlain',
+                'file1.yaml',
+                'file2.yml',
+                'plain'
+            ],
+            [
+                'differStylish',
+                'file1.yaml',
+                'file2.yml',
+                'stylish'
+            ],
+            [
+                'differJson',
+                'file1.yaml',
+                'file2.yml',
+                'json'
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataProvider
+     *
+     * @param string $expectedFile
+     * @param string $firstFile
+     * @param string $secondFile
+     * @param string $style
+     * @return void
+     */
+    public function testDiff(string $expectedFile, string $firstFile, string $secondFile, string $style): void
+    {
+        $expectedData = file_get_contents($this->getPath($expectedFile));
+        $firstFilePath = $this->getPath($firstFile);
+        $secondFilePath = $this->getPath($secondFile);
+        $this->assertEquals($expectedData, genDiff($firstFilePath, $secondFilePath, $style));
     }
 }
