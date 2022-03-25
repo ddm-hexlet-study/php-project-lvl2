@@ -44,6 +44,6 @@ function parseFilePath(string $path): array
     try {
         return $parsedData($fileExtension);
     } catch (\Exception $e) {
-        exit("Exception thrown: {$e->getMessage()}\n");
+        echo "Exception thrown: {$e->getMessage()}\n";
     }
 }
