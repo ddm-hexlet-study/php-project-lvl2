@@ -41,9 +41,5 @@ function parseFilePath(string $path): array
                 throw new \Exception("{$path} is not readable");
         }
     };
-    try {
         return $parsedData($fileExtension);
-    } catch (\Exception $e) {
-        echo "Exception thrown: {$e->getMessage()}\n";
-    }
 }
