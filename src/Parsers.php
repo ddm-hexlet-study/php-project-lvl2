@@ -34,11 +34,9 @@ function parseFilePath(string $path): array
         switch ($fileExtension) {
             case '.json':
                 return json_decode($data, true);
-                break;
             case '.yaml':
             case '.yml':
                 return Yaml::parse($data);
-                break;
             default:
                 throw new \Exception("{$path} is not readable");
         }
@@ -46,7 +44,6 @@ function parseFilePath(string $path): array
     try {
         return $parsedData($fileExtension);
     } catch (\Exception $e) {
-        echo 'Exception thrown: ',  $e->getMessage(), "\n";
-        die();
+        exit("Exception thrown: {$e->getMessage()}\n");
     }
 }
