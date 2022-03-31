@@ -18,8 +18,8 @@ use function Functional\sort;
 function getFileContent(string $path): array
 {
     $correctPath = realpath($path);
-    if (!file_exists($correctPath)) {
-        throw new \Exception("{$correctPath} doesn't exist");
+    if (!$correctPath) {
+        throw new \Exception("{$path} doesn't exist");
     }
     $data = file_get_contents($correctPath);
     $extension = pathinfo($correctPath, PATHINFO_EXTENSION);

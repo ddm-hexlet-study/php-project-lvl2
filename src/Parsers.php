@@ -8,7 +8,6 @@ use Symfony\Component\Yaml\Yaml;
  * Parses data according to its type.
  *
  * @param Array $fileContent Data to be parsed. Contains keys 'type' and 'data'
- * @param String $type Type of data
  * @return Array
  */
 function parse(array $fileContent): array
