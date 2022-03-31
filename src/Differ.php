@@ -18,7 +18,7 @@ use function Functional\sort;
 function getFileContent(string $path): array
 {
     $correctPath = realpath($path);
-    if (!$correctPath) {
+    if ($correctPath === false) {
         throw new \Exception("{$path} doesn't exist");
     }
     $data = file_get_contents($correctPath);
