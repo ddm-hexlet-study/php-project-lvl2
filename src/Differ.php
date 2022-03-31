@@ -2,12 +2,30 @@
 
 namespace Differ\Differ;
 
-use function Differ\Parsers\parseFilePath;
+use function Differ\Parsers\parse;
 use function Differ\Formatters\Formatters\formatDiff;
 use function Differ\Tree\createNode;
 use function Differ\Tree\createNested;
 use function Differ\Tree\createLeaf;
 use function Functional\sort;
+
+/**
+ * Returns parsed content of a file as an array.
+ *
+ * @param String $path Path to the file
+ * @return Array
+ */
+function getFileContent(string $path): array
+{
+    $correctPath = realpath($path);
+    if (!file_exists($correctPath)) {
+        throw new \Exception("{$correctPath} doesn't exist");
+    }
+    $data = file_get_contents($correctPath);
+    $extension = pathinfo($correctPath, PATHINFO_EXTENSION);
+    $result = ['type' => $extension, 'data' => $data];
+    return $result;
+}
 
 /**
  * Calculates difference between two arrays.
@@ -51,8 +69,8 @@ function accumDifference(array $firstData, array $secondData): array
  */
 function genDiff(string $path1, string $path2, string $format = 'stylish'): string
 {
-    $arr1 = parseFilePath($path1);
-    $arr2 = parseFilePath($path2);
+    $arr1 = parse(getFileContent($path1));
+    $arr2 = parse(getFileContent($path2));
     $difference = accumDifference($arr1, $arr2);
     $result = formatDiff($difference, $format);
     return $result;
