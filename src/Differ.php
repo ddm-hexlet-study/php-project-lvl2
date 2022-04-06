@@ -43,9 +43,17 @@ function accumDifference(array $firstData, array $secondData): array
         } elseif (!$belongsSecond) {
             $node = ['name' => $key, 'type' => 'deleted', 'value' => $firstData[$key]];
         } elseif (is_array($firstData[$key]) && is_array($secondData[$key])) {
-            $node = ['name' => $key, 'type' => 'nested', 'children' => accumDifference($firstData[$key], $secondData[$key])];
+            $node = [
+                'name' => $key,
+                'type' => 'nested',
+                'children' => accumDifference($firstData[$key], $secondData[$key])
+            ];
         } elseif ($firstData[$key] !== $secondData[$key]) {
-            $node = ['name' => $key, 'type' => 'changed', 'value' => ['old' => $firstData[$key], 'new' => $secondData[$key]]];
+            $node = [
+                'name' => $key,
+                'type' => 'changed',
+                'value' => ['old' => $firstData[$key], 'new' => $secondData[$key]]
+            ];
         } else {
             $node = ['name' => $key, 'type' => 'unchanged', 'value' => $firstData[$key]];
         }

@@ -60,27 +60,6 @@ function performTree(array $data, string $property = ''): array
     $result = array_diff($flatResult, array(''));
     return $result;
 }
-/*
-function performTree(array $data, string $property = ''): array
-{
-    $accum = array_map(function ($item) use ($property) {
-        $name = getName($item);
-        $type = getTypeNode($item);
-        $prop = $property === '' ? $name : "{$property}.{$name}";
-        if ($type === 'node') {
-            $children = getChildrenNode($item);
-            return performTree($children, $prop);
-        } elseif ($type === 'nested') {
-            return performNested($item, $prop);
-        } else {
-            return performLeaf($item, $prop);
-        }
-    }, $data);
-    $flatResult = flatten($accum);
-    $result = array_diff($flatResult, array(''));
-    return $result;
-}
-*/
 
 /**
  * Returns final result.
