@@ -57,7 +57,7 @@ function stringifyNonScalar(array $data, int $level): string
 }
 
 /**
- * Turns mixed value data into string.
+ * Turns mixed type data into string.
  *
  * @param Mixed $value Data to stringify
  * @param Int $level Depth of iteration

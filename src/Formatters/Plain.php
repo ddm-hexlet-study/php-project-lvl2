@@ -39,7 +39,6 @@ function performTree(array $data, string $property = ''): array
         if ($type === 'nested') {
             $children = $item['children'];
             return performTree($children, $prop);
-            //  return "{$indent}    {$name}: {$value}";
         } elseif ($type === 'added') {
             $value = stringify($item['value']);
             return "Property '{$prop}' was added with value: {$value}";
