@@ -2,12 +2,6 @@
 
 namespace Differ\Formatters\Plain;
 
-use function Differ\Tree\getName;
-use function Differ\Tree\getTypeNode;
-use function Differ\Tree\getChildrenNode;
-use function Differ\Tree\getChildrenNested;
-use function Differ\Tree\getStatusLeaf;
-use function Differ\Tree\getValueLeaf;
 use function Functional\flatten;
 
 /**
@@ -30,47 +24,43 @@ function stringify(mixed $value): string
 }
 
 /**
- * Performs a nested node of a tree as a string.
- *
- * @param Array $nested Data to stringify
- * @param String $property Full name of an item
- * @return String
- */
-function performNested(array $nested, string $property): string
-{
-    ['deleted' => $deleted, 'added' => $added] = getChildrenNested($nested);
-    $valueOld = stringify($deleted);
-    $valueNew = stringify($added)   ;
-    return "Property '{$property}' was updated. From {$valueOld} to {$valueNew}";
-}
-
-/**
- * Performs a leaf of a tree as a string.
- *
- * @param Array $leaf Data to stringify
- * @param String $property Full name of an item
- * @return String
- */
-function performLeaf(array $leaf, string $property): string
-{
-    $status = getStatusLeaf($leaf);
-    $value = getValueLeaf($leaf);
-    $correctValue = stringify($value);
-    $result = match ($status) {
-        'added' => "Property '{$property}' was added with value: {$correctValue}",
-        'deleted' => "Property '{$property}' was removed",
-        default => "",
-    };
-    return $result;
-}
-
-/**
  * Builds a tree of difference according to the stylish output.
  *
  * @param Array $data Data to stringify
  * @param String $property Full name of an item
  * @return Array
  */
+function performTree(array $data, string $property = ''): array
+{
+    $accum = array_map(function ($item) use ($property) {
+        $name = $item['name'];
+        $type = $item['type'];
+        $prop = $property === '' ? $name : "{$property}.{$name}";
+        if ($type === 'nested') {
+            $children = $item['children'];
+            return performTree($children, $prop);
+            //  return "{$indent}    {$name}: {$value}";
+        } elseif ($type === 'added') {
+            $value = stringify($item['value']);
+            return "Property '{$prop}' was added with value: {$value}";
+        } elseif ($type === 'deleted') {
+            return "Property '{$prop}' was removed";
+        } elseif ($type === 'unchanged') {
+            return "";
+        } elseif ($type === 'changed') {
+            ['old' => $oldValue, 'new' => $newValue] = $item['value'];
+            $stringifiedOld = stringify($oldValue);
+            $stringifiedNew = stringify($newValue);
+            return "Property '{$prop}' was updated. From {$stringifiedOld} to {$stringifiedNew}";
+        } else {
+            throw new \Exception("Unknown node format");
+        }
+    }, $data);
+    $flatResult = flatten($accum);
+    $result = array_diff($flatResult, array(''));
+    return $result;
+}
+/*
 function performTree(array $data, string $property = ''): array
 {
     $accum = array_map(function ($item) use ($property) {
@@ -90,6 +80,7 @@ function performTree(array $data, string $property = ''): array
     $result = array_diff($flatResult, array(''));
     return $result;
 }
+*/
 
 /**
  * Returns final result.

@@ -2,35 +2,6 @@
 
 namespace Differ\Formatters\Stylish;
 
-use function Differ\Tree\getName;
-use function Differ\Tree\getTypeNode;
-use function Differ\Tree\getChildrenNode;
-use function Differ\Tree\getChildrenNested;
-use function Differ\Tree\getStatusLeaf;
-use function Differ\Tree\getValueLeaf;
-
-const INDENT_LENGTH = 4;
-const DELETED_PREFIX = '  - ';
-const ADDED_PREFIX = '  + ';
-const UNCHANGED_PREFIX = '    ';
-
-/**
- * Returns prefix due to the status of a leaf.
- *
- * @param Array $leaf Variable that contains a leaf
- * @return String
- */
-function getPrefix(array $leaf): string
-{
-    $status = getStatusLeaf($leaf);
-    $prefix = match ($status) {
-        'added' => ADDED_PREFIX,
-        'deleted' => DELETED_PREFIX,
-        default => UNCHANGED_PREFIX,
-    };
-    return $prefix;
-}
-
 /**
  * Returns indent due to the depth of iteration.
  *
@@ -39,7 +10,7 @@ function getPrefix(array $leaf): string
  */
 function getIndent(int $level): string
 {
-    return str_repeat(' ', $level * INDENT_LENGTH);
+    return str_repeat('    ', $level);
 }
 
 /**
@@ -59,7 +30,6 @@ function stringifyBool(mixed $value): string
     }
     return $stringValue;
 }
-
 
 /**
  * Turns array value into string.
@@ -87,40 +57,15 @@ function stringifyNonScalar(array $data, int $level): string
 }
 
 /**
- * Performs a leaf of a tree as a string.
+ * Turns mixed value data into string.
  *
- * @param Array $leaf Data to stringify
+ * @param Mixed $value Data to stringify
  * @param Int $level Depth of iteration
  * @return String
  */
-function performLeaf(array $leaf, int $level): string
+function stringify(mixed $value, int $level): string
 {
-    $name = getName($leaf);
-    $prefix = getPrefix($leaf);
-    $value = getValueLeaf($leaf);
-    $res = is_array($value) ? stringifyNonScalar($value, $level + 1) : stringifyBool($value);
-    $indent = getIndent($level);
-    $performance = "{$indent}{$prefix}{$name}: {$res}";
-    return $performance;
-}
-
-/**
- * Performs a nested node of a tree as a string.
- *
- * @param Array $nested Data to stringify
- * @param Int $level Depth of iteration
- * @return String
- */
-function performNested(array $nested, int $level): string
-{
-    $indent = getIndent($level);
-    $name = getName($nested);
-    ['deleted' => $deleted, 'added' => $added] = getChildrenNested($nested);
-    $stringifiedDel = is_array($deleted) ? stringifyNonScalar($deleted, $level + 1) : stringifyBool($deleted);
-    $performanceDel = $indent . DELETED_PREFIX . $name . ": " . $stringifiedDel;
-    $stringifiedAdd = is_array($added) ? stringifyNonScalar($added, $level + 1) : stringifyBool($added);
-    $performanceAdd = $indent . ADDED_PREFIX . $name . ": " . $stringifiedAdd;
-    $result = "{$performanceDel}\n{$performanceAdd}";
+    $result = is_array($value) ? stringifyNonScalar($value, $level + 1) : stringifyBool($value);
     return $result;
 }
 
@@ -135,16 +80,30 @@ function performTree(array $data, int $level = 0): string
 {
     $indent = getIndent($level);
     $accum = array_map(function ($item) use ($level, $indent) {
-        $type = getTypeNode($item);
-        if ($type === 'node') {
-            $name = getName($item);
-            $children = getChildrenNode($item);
+        $name = $item['name'];
+        $type = $item['type'];
+        if ($type === 'nested') {
+            $children = $item['children'];
             $value = performTree($children, $level + 1);
-            return $indent . UNCHANGED_PREFIX . $name . ": " . $value;
-        } elseif ($type === 'leaf') {
-            return performLeaf($item, $level);
+            return "{$indent}    {$name}: {$value}";
+        } elseif ($type === 'added') {
+            $value = stringify($item['value'], $level);
+            return "{$indent}  + {$name}: {$value}";
+        } elseif ($type === 'deleted') {
+            $value = stringify($item['value'], $level);
+            return "{$indent}  - {$name}: {$value}";
+        } elseif ($type === 'unchanged') {
+            $value = stringify($item['value'], $level);
+            return "{$indent}    {$name}: {$value}";
+        } elseif ($type === 'changed') {
+            ['old' => $oldValue, 'new' => $newValue] = $item['value'];
+            $stringifiedOld = stringify($oldValue, $level);
+            $performanceOld = "{$indent}  - {$name}: {$stringifiedOld}";
+            $stringifiedNew = stringify($newValue, $level);
+            $performanceNew = "{$indent}  + {$name}: {$stringifiedNew}";
+            return "{$performanceOld}\n{$performanceNew}";
         } else {
-            return performNested($item, $level);
+            throw new \Exception("Unknown node format");
         }
     }, $data);
     $result = implode("\n", ["{", ...$accum, "{$indent}}"]);

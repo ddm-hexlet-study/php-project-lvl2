@@ -4,9 +4,6 @@ namespace Differ\Differ;
 
 use function Differ\Parsers\parse;
 use function Differ\Formatters\Formatters\formatDiff;
-use function Differ\Tree\createNode;
-use function Differ\Tree\createNested;
-use function Differ\Tree\createLeaf;
 use function Functional\sort;
 
 /**
@@ -42,17 +39,15 @@ function accumDifference(array $firstData, array $secondData): array
         $belongsFirst = array_key_exists($key, $firstData);
         $belongsSecond = array_key_exists($key, $secondData);
         if (!$belongsFirst) {
-            $data = [$key, 'added', $secondData[$key]];
-            $node = createLeaf(...$data);
+            $node = ['name' => $key, 'type' => 'added', 'value' => $secondData[$key]];
         } elseif (!$belongsSecond) {
-            $data = [$key, 'deleted', $firstData[$key]];
-            $node = createLeaf(...$data);
+            $node = ['name' => $key, 'type' => 'deleted', 'value' => $firstData[$key]];
         } elseif (is_array($firstData[$key]) && is_array($secondData[$key])) {
-            $node = createNode($key, accumDifference($firstData[$key], $secondData[$key]));
+            $node = ['name' => $key, 'type' => 'nested', 'children' => accumDifference($firstData[$key], $secondData[$key])];
         } elseif ($firstData[$key] !== $secondData[$key]) {
-            $node = createNested($key, $firstData[$key], $secondData[$key]);
+            $node = ['name' => $key, 'type' => 'changed', 'value' => ['old' => $firstData[$key], 'new' => $secondData[$key]]];
         } else {
-            $node = createLeaf($key, 'unchanged', $firstData[$key]);
+            $node = ['name' => $key, 'type' => 'unchanged', 'value' => $firstData[$key]];
         }
         return $node;
     }, $sortedKeys);
