@@ -39,9 +39,17 @@ function accumDifference(array $firstData, array $secondData): array
         $belongsFirst = array_key_exists($key, $firstData);
         $belongsSecond = array_key_exists($key, $secondData);
         if (!$belongsFirst) {
-            $node = ['name' => $key, 'type' => 'added', 'value' => $secondData[$key]];
+            $node = [
+                'name' => $key,
+                'type' => 'added',
+                'value' => $secondData[$key]
+            ];
         } elseif (!$belongsSecond) {
-            $node = ['name' => $key, 'type' => 'deleted', 'value' => $firstData[$key]];
+            $node = [
+                'name' => $key,
+                'type' => 'deleted',
+                'value' => $firstData[$key]
+            ];
         } elseif (is_array($firstData[$key]) && is_array($secondData[$key])) {
             $node = [
                 'name' => $key,
@@ -55,7 +63,11 @@ function accumDifference(array $firstData, array $secondData): array
                 'value' => ['old' => $firstData[$key], 'new' => $secondData[$key]]
             ];
         } else {
-            $node = ['name' => $key, 'type' => 'unchanged', 'value' => $firstData[$key]];
+            $node = [
+                'name' => $key,
+                'type' => 'unchanged',
+                'value' => $firstData[$key]
+            ];
         }
         return $node;
     }, $sortedKeys);
