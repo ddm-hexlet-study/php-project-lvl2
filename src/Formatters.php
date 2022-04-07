@@ -6,7 +6,13 @@ use function Differ\Formatters\Stylish\outputStylish;
 use function Differ\Formatters\Plain\outputPlain;
 use function Differ\Formatters\Json\outputJson;
 
-function formatDiff(array $data, string $format)
+/**
+ * Turns a difference tree into a string according to a given format.
+ *
+ * @param Array $data Data to stringify
+ * @return String
+ */
+function formatDiff(array $data, string $format): string
 {
     $result = match ($format) {
         'plain' => outputPlain($data),
