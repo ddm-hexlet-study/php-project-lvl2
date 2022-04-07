@@ -35,7 +35,8 @@ function stringify(mixed $value, int $level = 0): string
             $outerIndent = getIndent($level + 1);
             $accum = array_map(function ($item) use ($value, $level) {
                 $innerIndent = getIndent($level + 2);
-                $value = is_array($value[$item]) ? stringify($value[$item], $level + 1) : stringify($value[$item], $level);
+                $nextLevel = is_array($value[$item]) ? $level + 1 : $level;
+                $value = stringify($value[$item], $nextLevel);
                 return "{$innerIndent}{$item}: {$value}";
             }, $keys);
             $stringValue = implode("\n", ["{", ...$accum, "{$outerIndent}}"]);
