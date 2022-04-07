@@ -14,59 +14,36 @@ function getIndent(int $level): string
 }
 
 /**
- * Turns boolean value into string.
- *
- * @param Mixed $value Value
- * @return String
- */
-function stringifyBool(mixed $value): string
-{
-    if (!isset($value)) {
-        $stringValue = "null";
-    } elseif (is_bool($value)) {
-        $stringValue = $value === true ? 'true' : 'false';
-    } else {
-        $stringValue = $value;
-    }
-    return $stringValue;
-}
-
-/**
- * Turns array value into string.
- *
- * @param Array $data Data to stringify
- * @param Int $level Depth of iteration
- * @return String
- */
-function stringifyNonScalar(array $data, int $level): string
-{
-    $keys = array_keys($data);
-    $outerIndent = getIndent($level);
-    $accum = array_map(function ($item) use ($data, $level) {
-        $innerIndent = getIndent($level + 1);
-        if (is_array($data[$item])) {
-            $value = stringifyNonScalar($data[$item], $level + 1);
-            return "{$innerIndent}{$item}: {$value}";
-        } else {
-            $value = stringifyBool($data[$item]);
-            return "{$innerIndent}{$item}: {$value}";
-        }
-    }, $keys);
-    $result = implode("\n", ["{", ...$accum, "{$outerIndent}}"]);
-    return $result;
-}
-
-/**
- * Turns mixed type data into string.
+ * Turns mixed type value into a string.
  *
  * @param Mixed $value Data to stringify
  * @param Int $level Depth of iteration
  * @return String
  */
-function stringify(mixed $value, int $level): string
+function stringify(mixed $value, int $level = 0): string
 {
-    $result = is_array($value) ? stringifyNonScalar($value, $level + 1) : stringifyBool($value);
-    return $result;
+    $type = gettype($value);
+    switch ($type) {
+        case 'NULL':
+            $stringValue = "null";
+            break;
+        case 'boolean':
+            $stringValue = $value === true ? 'true' : 'false';
+            break;
+        case 'array':
+            $keys = array_keys($value);
+            $outerIndent = getIndent($level + 1);
+            $accum = array_map(function ($item) use ($value, $level) {
+                $innerIndent = getIndent($level + 2);
+                $value = is_array($value[$item]) ? stringify($value[$item], $level + 1) : stringify($value[$item], $level);
+                return "{$innerIndent}{$item}: {$value}";
+            }, $keys);
+            $stringValue = implode("\n", ["{", ...$accum, "{$outerIndent}}"]);
+            break;
+        default:
+            $stringValue = $value;
+    }
+    return $stringValue;
 }
 
 /**
@@ -76,33 +53,34 @@ function stringify(mixed $value, int $level): string
  * @param Int $level Depth of iteration
  * @return String
  */
-function performTree(array $data, int $level = 0): string
+function performStylish(array $data, int $level = 0): string
 {
     $indent = getIndent($level);
     $accum = array_map(function ($item) use ($level, $indent) {
         $name = $item['name'];
         $type = $item['type'];
-        if ($type === 'nested') {
-            $children = $item['children'];
-            $value = performTree($children, $level + 1);
-            return "{$indent}    {$name}: {$value}";
-        } elseif ($type === 'added') {
-            $value = stringify($item['value'], $level);
-            return "{$indent}  + {$name}: {$value}";
-        } elseif ($type === 'deleted') {
-            $value = stringify($item['value'], $level);
-            return "{$indent}  - {$name}: {$value}";
-        } elseif ($type === 'unchanged') {
-            $value = stringify($item['value'], $level);
-            return "{$indent}    {$name}: {$value}";
-        } elseif ($type === 'changed') {
-            ['old' => $oldValue, 'new' => $newValue] = $item['value'];
-            $stringifiedOld = stringify($oldValue, $level);
-            $performanceOld = "{$indent}  - {$name}: {$stringifiedOld}";
-            $stringifiedNew = stringify($newValue, $level);
-            $performanceNew = "{$indent}  + {$name}: {$stringifiedNew}";
-            return "{$performanceOld}\n{$performanceNew}";
-        } else {
+        switch ($type) {
+            case 'nested':
+                $children = $item['children'];
+                $value = performStylish($children, $level + 1);
+                return "{$indent}    {$name}: {$value}";
+            case 'added':
+                $value = stringify($item['value'], $level);
+                return "{$indent}  + {$name}: {$value}";
+            case 'deleted':
+                $value = stringify($item['value'], $level);
+                return "{$indent}  - {$name}: {$value}";
+            case 'unchanged':
+                $value = stringify($item['value'], $level);
+                return "{$indent}    {$name}: {$value}";
+            case 'changed':
+                ['old' => $oldValue, 'new' => $newValue] = $item['value'];
+                $stringifiedOld = stringify($oldValue, $level);
+                $performanceOld = "{$indent}  - {$name}: {$stringifiedOld}";
+                $stringifiedNew = stringify($newValue, $level);
+                $performanceNew = "{$indent}  + {$name}: {$stringifiedNew}";
+                return "{$performanceOld}\n{$performanceNew}";
+            default:
             throw new \Exception("Unknown node format");
         }
     }, $data);
@@ -118,6 +96,5 @@ function performTree(array $data, int $level = 0): string
  */
 function outputStylish(array $difference): string
 {
-    $tree = performTree($difference);
-    return $tree;
+    return performStylish($difference);
 }

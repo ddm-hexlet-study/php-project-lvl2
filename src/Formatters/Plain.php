@@ -13,14 +13,24 @@ use function Functional\flatten;
 
 function stringify(mixed $value): string
 {
-    $result = match (true) {
-        is_array($value) => '[complex value]',
-        !isset($value) => 'null',
-        is_bool($value) => $value === true ? 'true' : 'false',
-        is_string($value) => "'{$value}'",
-        default => $value
-    };
-    return $result;
+    $type = gettype($value);
+    switch ($type) {
+        case 'NULL':
+            $stringValue = 'null';
+            break;
+        case 'boolean':
+            $stringValue = $value === true ? 'true' : 'false';
+            break;
+        case 'array':
+            $stringValue = '[complex value]';
+            break;
+        case 'string':
+            $stringValue = "'{$value}'";
+            break;
+        default:
+            $stringValue = $value;
+    }
+    return $stringValue;
 }
 
 /**
@@ -30,28 +40,29 @@ function stringify(mixed $value): string
  * @param String $property Full name of an item
  * @return Array
  */
-function performTree(array $data, string $property = ''): array
+function performPlain(array $data, string $property = ''): array
 {
     $accum = array_map(function ($item) use ($property) {
         $name = $item['name'];
         $type = $item['type'];
-        $prop = $property === '' ? $name : "{$property}.{$name}";
-        if ($type === 'nested') {
-            $children = $item['children'];
-            return performTree($children, $prop);
-        } elseif ($type === 'added') {
-            $value = stringify($item['value']);
-            return "Property '{$prop}' was added with value: {$value}";
-        } elseif ($type === 'deleted') {
-            return "Property '{$prop}' was removed";
-        } elseif ($type === 'unchanged') {
-            return "";
-        } elseif ($type === 'changed') {
-            ['old' => $oldValue, 'new' => $newValue] = $item['value'];
-            $stringifiedOld = stringify($oldValue);
-            $stringifiedNew = stringify($newValue);
-            return "Property '{$prop}' was updated. From {$stringifiedOld} to {$stringifiedNew}";
-        } else {
+        $updatedProperty = $property === '' ? $name : "{$property}.{$name}";
+        switch ($type) {
+            case 'nested':
+                $children = $item['children'];
+                return performPlain($children, $updatedProperty);
+            case 'added':
+                $value = stringify($item['value']);
+                return "Property '{$updatedProperty}' was added with value: {$value}";
+            case 'deleted':
+                return "Property '{$updatedProperty}' was removed";
+            case 'unchanged':
+                return "";
+            case 'changed':
+                ['old' => $oldValue, 'new' => $newValue] = $item['value'];
+                $stringifiedOld = stringify($oldValue);
+                $stringifiedNew = stringify($newValue);
+                return "Property '{$updatedProperty}' was updated. From {$stringifiedOld} to {$stringifiedNew}";
+            default:
             throw new \Exception("Unknown node format");
         }
     }, $data);
@@ -68,6 +79,6 @@ function performTree(array $data, string $property = ''): array
  */
 function outputPlain(array $difference): string
 {
-    $tree = performTree($difference);
-    return implode("\n", $tree);
+    $result = performPlain($difference);
+    return implode("\n", $result);
 }

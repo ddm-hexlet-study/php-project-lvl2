@@ -8,10 +8,10 @@ use function Differ\Formatters\Json\outputJson;
 
 function formatDiff(array $data, string $format)
 {
-    $resultStr = match ($format) {
+    $result = match ($format) {
         'plain' => outputPlain($data),
         'json' => outputJson($data),
         default => outputStylish($data),
     };
-    return $resultStr;
+    return $result;
 }

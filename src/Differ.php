@@ -31,7 +31,7 @@ function getFileContent(string $path): array
  * @param Array $secondData Second array
  * @return Array
  */
-function accumDifference(array $firstData, array $secondData): array
+function buildTree(array $firstData, array $secondData): array
 {
     $keys = array_unique(array_merge(array_keys($firstData), array_keys($secondData)));
     $sortedKeys = sort($keys, fn ($left, $right) => strcmp($left, $right));
@@ -54,7 +54,7 @@ function accumDifference(array $firstData, array $secondData): array
             $node = [
                 'name' => $key,
                 'type' => 'nested',
-                'children' => accumDifference($firstData[$key], $secondData[$key])
+                'children' => buildTree($firstData[$key], $secondData[$key])
             ];
         } elseif ($firstData[$key] !== $secondData[$key]) {
             $node = [
@@ -84,9 +84,8 @@ function accumDifference(array $firstData, array $secondData): array
  */
 function genDiff(string $path1, string $path2, string $format = 'stylish'): string
 {
-    $arr1 = parse(getFileContent($path1));
-    $arr2 = parse(getFileContent($path2));
-    $difference = accumDifference($arr1, $arr2);
-    $result = formatDiff($difference, $format);
-    return $result;
+    $data1 = parse(getFileContent($path1));
+    $data2 = parse(getFileContent($path2));
+    $difference = buildTree($data1, $data2);
+    return formatDiff($difference, $format);
 }
