@@ -7,7 +7,7 @@ use function Functional\flatten;
 /**
  * Turns boolean/string/int/array value into a string according to the plain output.
  *
- * @param Mixed $value Data to stringify
+ * @param Mixed $data Data to stringify
  * @return String
  */
 

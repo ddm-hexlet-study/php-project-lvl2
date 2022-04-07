@@ -16,7 +16,7 @@ function getIndent(int $level): string
 /**
  * Turns mixed type value into a string.
  *
- * @param Mixed $value Data to stringify
+ * @param Mixed $data Data to stringify
  * @param Int $level Depth of iteration
  * @return String
  */
