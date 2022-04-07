@@ -81,7 +81,7 @@ function performStylish(array $data, int $level = 0): string
                 $performanceNew = "{$indent}  + {$name}: {$stringifiedNew}";
                 return "{$performanceOld}\n{$performanceNew}";
             default:
-            throw new \Exception("Unknown node format");
+                throw new \Exception("Unknown node format");
         }
     }, $data);
     $result = implode("\n", ["{", ...$accum, "{$indent}}"]);
