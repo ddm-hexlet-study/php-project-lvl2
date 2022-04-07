@@ -20,29 +20,29 @@ function getIndent(int $level): string
  * @param Int $level Depth of iteration
  * @return String
  */
-function stringify(mixed $value, int $level = 0): string
+function stringify(mixed $data, int $level = 0): string
 {
-    $type = gettype($value);
+    $type = gettype($data);
     switch ($type) {
         case 'NULL':
             $stringValue = "null";
             break;
         case 'boolean':
-            $stringValue = $value === true ? 'true' : 'false';
+            $stringValue = $data === true ? 'true' : 'false';
             break;
         case 'array':
-            $keys = array_keys($value);
+            $keys = array_keys($data);
             $outerIndent = getIndent($level + 1);
-            $accum = array_map(function ($item) use ($value, $level) {
+            $accum = array_map(function ($item) use ($data, $level) {
                 $innerIndent = getIndent($level + 2);
-                $nextLevel = is_array($value[$item]) ? $level + 1 : $level;
-                $value = stringify($value[$item], $nextLevel);
+                $nextLevel = is_array($data[$item]) ? $level + 1 : $level;
+                $value = stringify($data[$item], $nextLevel);
                 return "{$innerIndent}{$item}: {$value}";
             }, $keys);
             $stringValue = implode("\n", ["{", ...$accum, "{$outerIndent}}"]);
             break;
         default:
-            $stringValue = $value;
+            $stringValue = $data;
     }
     return $stringValue;
 }

@@ -11,24 +11,24 @@ use function Functional\flatten;
  * @return String
  */
 
-function stringify(mixed $value): string
+function stringify(mixed $data): string
 {
-    $type = gettype($value);
+    $type = gettype($data);
     switch ($type) {
         case 'NULL':
             $stringValue = 'null';
             break;
         case 'boolean':
-            $stringValue = $value === true ? 'true' : 'false';
+            $stringValue = $data === true ? 'true' : 'false';
             break;
         case 'array':
             $stringValue = '[complex value]';
             break;
         case 'string':
-            $stringValue = "'{$value}'";
+            $stringValue = "'{$data}'";
             break;
         default:
-            $stringValue = $value;
+            $stringValue = $data;
     }
     return $stringValue;
 }
