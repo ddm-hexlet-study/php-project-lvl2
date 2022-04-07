@@ -63,7 +63,7 @@ function performPlain(array $data, string $property = ''): array
                 $stringifiedNew = stringify($newValue);
                 return "Property '{$updatedProperty}' was updated. From {$stringifiedOld} to {$stringifiedNew}";
             default:
-            throw new \Exception("Unknown node format");
+                throw new \Exception("Unknown node format");
         }
     }, $data);
     $flatResult = flatten($accum);
