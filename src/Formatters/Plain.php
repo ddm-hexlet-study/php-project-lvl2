@@ -40,12 +40,12 @@ function performPlain(array $data, array $property = []): array
     $accum = array_map(function ($item) use ($property) {
         $name = $item['name'];
         $type = $item['type'];
-        $property[] = $name;
-        $stringifiedProperty = implode('.', $property);
+        $nextLevelProperty = [...$property, $name];
+        $stringifiedProperty = implode('.', $nextLevelProperty);
         switch ($type) {
             case 'nested':
                 $children = $item['children'];
-                return performPlain($children, $property);
+                return performPlain($children, $nextLevelProperty);
             case 'added':
                 $value = stringify($item['value']);
                 return "Property '{$stringifiedProperty}' was added with value: {$value}";
