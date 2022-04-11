@@ -25,11 +25,9 @@ function stringify(mixed $data, int $level = 0): string
     $type = gettype($data);
     switch ($type) {
         case 'NULL':
-            $stringValue = "null";
-            break;
+            return "null";
         case 'boolean':
-            $stringValue = $data === true ? 'true' : 'false';
-            break;
+            return $data === true ? 'true' : 'false';
         case 'array':
             $keys = array_keys($data);
             $outerIndent = getIndent($level + 1);
@@ -39,12 +37,10 @@ function stringify(mixed $data, int $level = 0): string
                 $value = stringify($data[$item], $nextLevel);
                 return "{$innerIndent}{$item}: {$value}";
             }, $keys);
-            $stringValue = implode("\n", ["{", ...$accum, "{$outerIndent}}"]);
-            break;
+            return implode("\n", ["{", ...$accum, "{$outerIndent}}"]);
         default:
-            $stringValue = $data;
+            return $data;
     }
-    return $stringValue;
 }
 
 /**

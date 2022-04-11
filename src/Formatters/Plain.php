@@ -16,52 +16,48 @@ function stringify(mixed $data): string
     $type = gettype($data);
     switch ($type) {
         case 'NULL':
-            $stringValue = 'null';
-            break;
+            return 'null';
         case 'boolean':
-            $stringValue = $data === true ? 'true' : 'false';
-            break;
+            return $data === true ? 'true' : 'false';
         case 'array':
-            $stringValue = '[complex value]';
-            break;
+            return '[complex value]';
         case 'string':
-            $stringValue = "'{$data}'";
-            break;
+            return "'{$data}'";
         default:
-            $stringValue = $data;
+            return $data;
     }
-    return $stringValue;
 }
 
 /**
  * Builds a tree of difference according to the stylish output.
  *
  * @param Array $data Data to stringify
- * @param String $property Full name of an item
+ * @param Array $property Full name of an item
  * @return Array
  */
-function performPlain(array $data, string $property = ''): array
+function performPlain(array $data, array $property = []): array
 {
     $accum = array_map(function ($item) use ($property) {
         $name = $item['name'];
         $type = $item['type'];
-        $updatedProperty = $property === '' ? $name : "{$property}.{$name}";
+        $property[] = $name;
+        $stringifiedProperty = implode('.', $property);
         switch ($type) {
             case 'nested':
                 $children = $item['children'];
-                return performPlain($children, $updatedProperty);
+                return performPlain($children, $property);
             case 'added':
                 $value = stringify($item['value']);
-                return "Property '{$updatedProperty}' was added with value: {$value}";
+                return "Property '{$stringifiedProperty}' was added with value: {$value}";
             case 'deleted':
-                return "Property '{$updatedProperty}' was removed";
+                return "Property '{$stringifiedProperty}' was removed";
             case 'unchanged':
                 return "";
             case 'changed':
                 ['old' => $oldValue, 'new' => $newValue] = $item['value'];
                 $stringifiedOld = stringify($oldValue);
                 $stringifiedNew = stringify($newValue);
-                return "Property '{$updatedProperty}' was updated. From {$stringifiedOld} to {$stringifiedNew}";
+                return "Property '{$stringifiedProperty}' was updated. From {$stringifiedOld} to {$stringifiedNew}";
             default:
                 throw new \Exception("Unknown node format");
         }
